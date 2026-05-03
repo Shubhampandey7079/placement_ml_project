@@ -1,0 +1,657 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>AI Placement Engine</title>
+    
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;700&family=Rajdhani:wght@500;600;700&display=swap" rel="stylesheet">
+    
+    <!-- Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <style>
+        :root {
+            --bg-color: #030508;
+            --card-bg: rgba(10, 15, 30, 0.70); /* Slightly increased opacity for readability */
+            --card-border: rgba(100, 255, 218, 0.15);
+            --primary-accent: #00fff2;
+            --secondary-accent: #7000ff;
+            --text-main: #e0e6ed;
+            --text-muted: #94a3b8;
+            --success-glow: rgba(0, 255, 115, 0.6);
+            --error-glow: rgba(255, 50, 50, 0.6);
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            outline: none;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        html {
+            /* Fixes 100vh issues on mobile browsers */
+            height: -webkit-fill-available;
+            height: 100%;
+        }
+
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-main);
+            font-family: 'Outfit', sans-serif;
+            /* Fallback to min-h-screen behavior */
+            min-height: 100vh;
+            min-height: -webkit-fill-available;
+            overflow-x: hidden; /* Strictly prevent horizontal scroll */
+            display: flex;
+            flex-direction: column;
+            position: relative;
+        }
+
+        /* Animated Background Canvas */
+        #bg-canvas {
+            position: fixed; /* Changed to fixed for stability */
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 0;
+            pointer-events: none;
+        }
+
+        /* Layout Wrapper */
+        .wrapper {
+            position: relative;
+            z-index: 10;
+            width: 100%;
+            /* Use min-height instead of height to allow scrolling on small mobile keyboards */
+            min-height: 100vh;
+            min-height: -webkit-fill-available;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 2rem 1rem; /* Improved default padding */
+        }
+
+        /* Main Container */
+        .dashboard-container {
+            width: 100%;
+            max-width: 480px; /* Slightly reduced for better proportion */
+            perspective: 1000px;
+            margin: auto; /* Ensures centering within flex container */
+        }
+
+        /* Header Section */
+        .hero-header {
+            text-align: center;
+            margin-bottom: 1.5rem;
+            animation: fadeInDown 1s ease-out;
+            padding: 0 10px;
+        }
+
+        .hero-header h1 {
+            font-family: 'Rajdhani', sans-serif;
+            /* Fluid font size */
+            font-size: clamp(1.8rem, 5vw, 2.5rem); 
+            font-weight: 700;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            background: linear-gradient(90deg, #fff, var(--primary-accent));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            text-shadow: 0 0 20px rgba(0, 255, 242, 0.3);
+            margin-bottom: 5px;
+            line-height: 1.2;
+        }
+
+        .hero-header p {
+            color: var(--text-muted);
+            font-size: 0.9rem;
+            letter-spacing: 1px;
+        }
+
+        /* Glassmorphism Card */
+        .glass-card {
+            background: var(--card-bg);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border: 1px solid var(--card-border);
+            border-radius: 20px;
+            padding: clamp(1.5rem, 5vw, 2.5rem); /* Fluid padding */
+            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.5),
+                        0 0 0 1px rgba(255, 255, 255, 0.05) inset;
+            transform-style: preserve-3d;
+            animation: fadeInUp 1s ease-out 0.2s backwards;
+            position: relative;
+            overflow: hidden;
+            width: 100%;
+        }
+
+        /* Decorative top line */
+        .glass-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 2px;
+            background: linear-gradient(90deg, transparent, var(--primary-accent), transparent);
+            opacity: 0.8;
+        }
+
+        /* Form Styling */
+        .input-group {
+            position: relative;
+            margin-bottom: clamp(1.2rem, 4vw, 1.5rem);
+        }
+
+        .input-label {
+            display: block;
+            font-size: 0.75rem;
+            color: var(--primary-accent);
+            margin-bottom: 8px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            display: flex;
+            justify-content: space-between;
+        }
+
+        .input-wrapper {
+            position: relative;
+        }
+
+        .input-wrapper i {
+            position: absolute;
+            left: 15px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--text-muted);
+            transition: color 0.3s;
+            z-index: 2;
+        }
+
+        .cyber-input {
+            width: 100%;
+            background: rgba(0, 0, 0, 0.4);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 8px;
+            padding: 14px 14px 14px 45px;
+            color: white;
+            font-family: 'Rajdhani', sans-serif;
+            font-size: 1.1rem;
+            font-weight: 600;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            /* Prevent iOS zoom on focus */
+            font-size: 16px; 
+        }
+
+        .cyber-input::placeholder {
+            color: rgba(255, 255, 255, 0.2);
+            font-weight: 400;
+            font-family: 'Outfit', sans-serif;
+        }
+
+        .cyber-input:focus {
+            border-color: var(--primary-accent);
+            box-shadow: 0 0 15px rgba(0, 255, 242, 0.2);
+            background: rgba(0, 0, 0, 0.6);
+        }
+
+        .cyber-input:focus + i {
+            color: var(--primary-accent);
+        }
+
+        /* Submit Button */
+        .submit-btn {
+            width: 100%;
+            padding: clamp(0.8rem, 3vw, 1rem); /* Fluid padding */
+            margin-top: 10px;
+            background: transparent;
+            color: var(--primary-accent);
+            border: 1px solid var(--primary-accent);
+            font-family: 'Rajdhani', sans-serif;
+            font-weight: 700;
+            font-size: 1.1rem;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            cursor: pointer;
+            position: relative;
+            overflow: hidden;
+            transition: all 0.4s ease;
+            border-radius: 4px;
+        }
+
+        .submit-btn::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(0, 255, 242, 0.2), transparent);
+            transition: 0.5s;
+        }
+
+        .submit-btn:hover {
+            background: rgba(0, 255, 242, 0.1);
+            box-shadow: 0 0 20px rgba(0, 255, 242, 0.4);
+            text-shadow: 0 0 8px var(--primary-accent);
+        }
+
+        .submit-btn:hover::before {
+            left: 100%;
+        }
+
+        .submit-btn:active {
+            transform: scale(0.98);
+        }
+
+        /* Result Section */
+        .result-panel {
+            margin-top: 25px;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+            padding-top: 20px;
+            display: none;
+            animation: slideIn 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+
+        .result-header {
+            font-size: 0.75rem;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .result-box {
+            background: rgba(0, 0, 0, 0.3);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            padding: 15px;
+            border-radius: 6px;
+            font-family: 'Rajdhani', sans-serif;
+            font-size: 1.2rem; /* Scaled down slightly for mobile */
+            font-weight: 700;
+            text-align: center;
+            position: relative;
+            min-height: 60px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            word-wrap: break-word; /* Ensure long text doesn't overflow */
+        }
+
+        .result-placed {
+            color: #00ff73;
+            border-color: rgba(0, 255, 115, 0.3);
+            box-shadow: 0 0 15px rgba(0, 255, 115, 0.1);
+        }
+
+        .result-not-placed {
+            color: #ff3232;
+            border-color: rgba(255, 50, 50, 0.3);
+            box-shadow: 0 0 15px rgba(255, 50, 50, 0.1);
+        }
+
+        /* Loading Overlay */
+        .loader-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(3, 5, 8, 0.9);
+            z-index: 100;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.3s;
+            backdrop-filter: blur(5px);
+        }
+
+        .loader-overlay.active {
+            opacity: 1;
+            pointer-events: all;
+        }
+
+        .scan-line {
+            width: 200px;
+            height: 2px;
+            background: var(--primary-accent);
+            box-shadow: 0 0 10px var(--primary-accent);
+            animation: scan 1.5s infinite linear;
+            margin-bottom: 20px;
+        }
+
+        .loader-text {
+            font-family: 'Rajdhani', sans-serif;
+            color: var(--primary-accent);
+            letter-spacing: 3px;
+            font-size: 1.1rem; /* Adjusted for mobile */
+            animation: pulse 1s infinite alternate;
+        }
+
+        /* Animations */
+        @keyframes fadeInDown {
+            from { opacity: 0; transform: translateY(-30px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        @keyframes fadeInUp {
+            from { opacity: 0; transform: translateY(30px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        @keyframes scan {
+            0% { width: 0; opacity: 0; }
+            50% { width: 200px; opacity: 1; }
+            100% { width: 0; opacity: 0; margin-left: 200px; }
+        }
+
+        @keyframes pulse {
+            from { opacity: 0.6; }
+            to { opacity: 1; text-shadow: 0 0 10px var(--primary-accent); }
+        }
+
+        @keyframes slideIn {
+            from { opacity: 0; transform: translateX(-10px); }
+            to { opacity: 1; transform: translateX(0); }
+        }
+
+        /* =========================================
+           RESPONSIVE MEDIA QUERIES
+           ========================================= */
+        
+        /* Tablet & Small Laptops */
+        @media (max-width: 768px) {
+            .wrapper {
+                padding: 1.5rem;
+            }
+            
+            .hero-header h1 {
+                font-size: 2.2rem;
+            }
+        }
+
+        /* Mobile Devices */
+        @media (max-width: 480px) {
+            body {
+                /* Allow body to scroll if content overflows viewport height (e.g. keyboard open) */
+                height: auto; 
+                overflow-y: auto;
+            }
+
+            .wrapper {
+                padding: 1rem;
+                min-height: 100vh; /* Ensure full height visual */
+                padding-bottom: 2rem; /* Extra bottom spacing */
+            }
+
+            .dashboard-container {
+                max-width: 100%;
+            }
+
+            .glass-card {
+                padding: 1.5rem;
+                /* Ensure border radius matches mobile aesthetic */
+                border-radius: 16px; 
+            }
+
+            .hero-header {
+                margin-bottom: 1.2rem;
+            }
+
+            .hero-header h1 {
+                font-size: 1.8rem;
+                letter-spacing: 1px;
+            }
+
+            .hero-header p {
+                font-size: 0.8rem;
+            }
+
+            .input-group {
+                margin-bottom: 1rem;
+            }
+
+            .input-label {
+                font-size: 0.7rem;
+                margin-bottom: 6px;
+            }
+
+            .cyber-input {
+                padding: 12px 12px 12px 40px;
+                border-radius: 6px;
+            }
+
+            .submit-btn {
+                font-size: 1rem;
+                padding: 14px;
+            }
+
+            .result-box {
+                font-size: 1.1rem;
+                padding: 12px;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Background Animation Canvas -->
+    <canvas id="bg-canvas"></canvas>
+
+    <!-- Loader Overlay -->
+    <div class="loader-overlay" id="loader">
+        <div class="scan-line"></div>
+        <div class="loader-text">ANALYZING DATA...</div>
+    </div>
+
+    <div class="wrapper">
+        <div class="dashboard-container">
+            <div class="hero-header">
+                <h1>AI Placement <span style="color:var(--primary-accent)">Model</span></h1>
+                <p>Campus Placement Prediction Engine</p>
+            </div>
+
+            <div class="glass-card">
+                <form action="/predict" method="post" id="predictForm">
+                    
+                    <!-- Input: CGPA -->
+                    <div class="input-group">
+                        <label class="input-label">
+                            <span>Cumulative GPA</span>
+                            <i class="fa-solid fa-database" style="font-size: 0.7rem;"></i>
+                        </label>
+                        <div class="input-wrapper">
+                            <input type="number" step="0.01" name="cgpa" class="cyber-input" placeholder="e.g. 8.45" required>
+                            <i class="fa-solid fa-graduation-cap"></i>
+                        </div>
+                    </div>
+
+                    <!-- Input: Aptitude -->
+                    <div class="input-group">
+                        <label class="input-label">
+                            <span>Aptitude Score</span>
+                            <i class="fa-solid fa-brain" style="font-size: 0.7rem;"></i>
+                        </label>
+                        <div class="input-wrapper">
+                            <input type="number" name="aptitude" class="cyber-input" placeholder="e.g. 85" required>
+                            <i class="fa-solid fa-chart-pie"></i>
+                        </div>
+                    </div>
+
+                    <button type="submit" class="submit-btn">
+                        Run Analysis <i class="fa-solid fa-microchip" style="margin-left: 10px;"></i>
+                    </button>
+                </form>
+
+                <!-- Result Section -->
+                <div class="result-panel" id="resultPanel">
+                    <div class="result-header">
+                        <i class="fa-solid fa-terminal"></i> System Output
+                    </div>
+                    <div class="result-box" id="resultBox">
+                        <!-- Flask Prediction Text Here -->
+                        <span id="predictionText">{{ prediction_text }}</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        /**
+         * Particle Network Background Animation
+         */
+        const canvas = document.getElementById('bg-canvas');
+        const ctx = canvas.getContext('2d');
+        
+        let width, height;
+        let particles = [];
+        
+        // Configuration
+        const particleCount = 60;
+        const connectionDistance = 150;
+        const moveSpeed = 0.5;
+
+        function resize() {
+            width = canvas.width = window.innerWidth;
+            height = canvas.height = window.innerHeight;
+        }
+
+        class Particle {
+            constructor() {
+                this.x = Math.random() * width;
+                this.y = Math.random() * height;
+                this.vx = (Math.random() - 0.5) * moveSpeed;
+                this.vy = (Math.random() - 0.5) * moveSpeed;
+                this.size = Math.random() * 2 + 1;
+                this.color = Math.random() > 0.5 ? 'rgba(0, 255, 242,' : 'rgba(112, 0, 255,'; 
+            }
+
+            update() {
+                this.x += this.vx;
+                this.y += this.vy;
+
+                // Bounce off edges
+                if (this.x < 0 || this.x > width) this.vx *= -1;
+                if (this.y < 0 || this.y > height) this.vy *= -1;
+            }
+
+            draw() {
+                ctx.beginPath();
+                ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
+                ctx.fillStyle = this.color + '0.5)';
+                ctx.fill();
+            }
+        }
+
+        function initParticles() {
+            particles = [];
+            for (let i = 0; i < particleCount; i++) {
+                particles.push(new Particle());
+            }
+        }
+
+        function animate() {
+            ctx.clearRect(0, 0, width, height);
+            
+            // Draw connections first
+            for (let i = 0; i < particles.length; i++) {
+                for (let j = i + 1; j < particles.length; j++) {
+                    const dx = particles[i].x - particles[j].x;
+                    const dy = particles[i].y - particles[j].y;
+                    const distance = Math.sqrt(dx * dx + dy * dy);
+
+                    if (distance < connectionDistance) {
+                        ctx.beginPath();
+                        ctx.strokeStyle = `rgba(100, 200, 255, ${1 - distance / connectionDistance})`;
+                        ctx.lineWidth = 0.5;
+                        ctx.moveTo(particles[i].x, particles[i].y);
+                        ctx.lineTo(particles[j].x, particles[j].y);
+                        ctx.stroke();
+                    }
+                }
+            }
+
+            // Update and draw particles
+            particles.forEach(p => {
+                p.update();
+                p.draw();
+            });
+
+            requestAnimationFrame(animate);
+        }
+
+        window.addEventListener('resize', resize);
+        resize();
+        initParticles();
+        animate();
+
+        /**
+         * Form Interaction & Result Handling
+         */
+        const form = document.getElementById('predictForm');
+        const loader = document.getElementById('loader');
+        const resultPanel = document.getElementById('resultPanel');
+        const resultBox = document.getElementById('resultBox');
+        const predictionText = document.getElementById('predictionText');
+        const rawPrediction = "{{ prediction_text }}".trim();
+
+        // 1. Handle Submit Animation
+        form.addEventListener('submit', function(e) {
+            // We prevent default to show the animation, then submit programmatically
+            e.preventDefault(); 
+            
+            // Show Loader
+            loader.classList.add('active');
+
+            // Simulate "Neural Processing" delay
+            setTimeout(() => {
+                form.submit(); // Proceed with actual POST request
+            }, 1500);
+        });
+
+        // 2. Handle Result Display on Page Load
+        document.addEventListener("DOMContentLoaded", () => {
+            // Check if prediction text exists and is not empty (Flask sends it back on POST)
+            if (rawPrediction && rawPrediction !== "None" && rawPrediction !== "") {
+                
+                // Show the panel
+                resultPanel.style.display = 'block';
+                
+                // Clean up text and check content for styling
+                const cleanText = rawPrediction.replace(/['"]+/g, ''); // Remove quotes if backend sends strings
+                
+                predictionText.innerText = cleanText;
+
+                // Apply styles based on result
+                const lowerText = cleanText.toLowerCase();
+                
+                if (lowerText.includes('placed')) {
+                    resultBox.classList.add('result-placed');
+                    resultBox.innerHTML = `<i class="fa-solid fa-check-circle" style="margin-right:10px;"></i> ${cleanText}`;
+                } else {
+                    resultBox.classList.add('result-not-placed');
+                    resultBox.innerHTML = `<i class="fa-solid fa-circle-xmark" style="margin-right:10px;"></i> ${cleanText}`;
+                }
+            } else {
+                // Hide panel if no result (Initial GET request)
+                resultPanel.style.display = 'none';
+            }
+        });
+
+    </script>
+</body>
+</html>
