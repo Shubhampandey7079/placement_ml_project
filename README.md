@@ -45,9 +45,8 @@ into the most important influencing factors.
 <h2>🚀 How to Run</h2>
 
 <pre>
-git clone https://github.com/your-username/placement_ml_project.git
+git clone https://github.com/Shubhampandey7079/placement_ml_project.git
 cd placement_ml_project
-pip install -r requirements.txt
 python main.py
 </pre>
 
