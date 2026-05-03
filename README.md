@@ -63,4 +63,4 @@ Feel free to fork this repository and enhance it!
 
 <hr>
 
-<p align="center">✨ Made with ❤️ by You ✨</p>
+<p align="center">✨ Made with ❤️ by Shubham Pandey ✨</p>
