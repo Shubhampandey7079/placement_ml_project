@@ -64,7 +64,7 @@
             position: relative; z-index: 10; width: 100%; min-height: 100vh;
             display: flex; justify-content: center; align-items: flex-start; padding: 2rem 1rem;
         }
-        .dashboard-container { width: 100%; max-width: 650px; margin: auto; perspective: 1000px; }
+        .dashboard-container { width: 100%; max-width: 700px; margin: auto; perspective: 1000px; }
 
         /* Header */
         .top-controls {
@@ -104,41 +104,144 @@
             background: linear-gradient(90deg, transparent, var(--primary-accent), transparent);
         }
 
-        /* Form Grid */
-        .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 1.5rem; }
-        .input-group.full-width { grid-column: span 2; }
-        .input-label {
-            display: flex; justify-content: space-between; font-size: 0.7rem; color: var(--primary-accent);
-            margin-bottom: 6px; font-weight: 600; text-transform: uppercase; letter-spacing: 1px;
+        /* Section Divider */
+        .section-divider {
+            display: flex; align-items: center; text-align: center; margin: 1.5rem 0;
+            color: var(--text-muted); font-size: 0.8rem; text-transform: uppercase; letter-spacing: 2px;
         }
-        .input-wrapper { position: relative; }
-        .input-wrapper i {
-            position: absolute; left: 12px; top: 50%; transform: translateY(-50%); color: var(--text-muted);
-            font-size: 0.9rem; z-index: 2; transition: color 0.3s;
+        .section-divider::before, .section-divider::after {
+            content: ''; flex: 1; border-bottom: 1px solid var(--card-border);
         }
-        .cyber-input {
-            width: 100%; background: var(--input-bg); border: 1px solid rgba(255, 255, 255, 0.1);
-            border-radius: 8px; padding: 12px 12px 12px 36px; color: var(--input-text);
-            font-family: 'Rajdhani', sans-serif; font-size: 1rem; font-weight: 600; transition: all 0.3s;
-        }
-        [data-theme="light"] .cyber-input { border: 1px solid rgba(0, 0, 0, 0.15); }
-        .cyber-input:focus { border-color: var(--primary-accent); box-shadow: 0 0 15px rgba(0, 255, 242, 0.2); }
+        .section-divider span { padding: 0 10px; color: var(--secondary-accent); font-weight: bold; }
 
-        /* Buttons */
-        .action-buttons { display: flex; gap: 15px; margin-top: 10px; }
+        /* Form Grid */
+        .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 10px; }
+        .input-group.full-width { grid-column: span 2; }
+
+        /* Extra Fields Styling */
+        .extra-fields-grid {
+            display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 1.5rem;
+            background: rgba(255,255,255,0.02); padding: 15px; border-radius: 12px; border: 1px dashed var(--card-border);
+        }
+
+        /* Slider Component */
+        .slider-group { margin-bottom: 5px; }
+        .slider-header {
+            display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;
+        }
+        .input-label {
+            font-size: 0.75rem; color: var(--primary-accent);
+            font-weight: 600; text-transform: uppercase; letter-spacing: 1px;
+        }
+        .slider-value-box {
+            display: flex; align-items: center; gap: 10px;
+        }
+        .slider-value {
+            font-family: 'Rajdhani', sans-serif; font-size: 1.1rem; font-weight: 700;
+            color: var(--text-main); min-width: 30px; text-align: center;
+        }
+        .slider-input-mini {
+            width: 50px; background: var(--input-bg); border: 1px solid var(--card-border);
+            color: var(--primary-accent); border-radius: 4px; padding: 2px 5px; font-family: 'Rajdhani', sans-serif;
+            font-weight: 700; text-align: center; font-size: 0.9rem;
+        }
+        .slider-input-mini:focus { border-color: var(--primary-accent); outline: none; }
+
+        /* Range Input Styling */
+        input[type=range] {
+            -webkit-appearance: none; width: 100%; background: transparent; cursor: pointer;
+        }
+        input[type=range]:focus { outline: none; }
+        
+        /* Slider Track */
+        input[type=range]::-webkit-slider-runnable-track {
+            width: 100%; height: 6px; cursor: pointer;
+            background: rgba(255,255,255,0.1); border-radius: 3px;
+        }
+        input[type=range]::-moz-range-track {
+            width: 100%; height: 6px; cursor: pointer;
+            background: rgba(255,255,255,0.1); border-radius: 3px;
+        }
+        
+        /* Slider Thumb */
+        input[type=range]::-webkit-slider-thumb {
+            height: 18px; width: 18px; border-radius: 50%; background: var(--primary-accent);
+            cursor: pointer; -webkit-appearance: none; margin-top: -6px; /* center on track */
+            box-shadow: 0 0 10px var(--primary-accent); transition: transform 0.1s;
+        }
+        input[type=range]::-moz-range-thumb {
+            height: 18px; width: 18px; border: none; border-radius: 50%; background: var(--primary-accent);
+            cursor: pointer; box-shadow: 0 0 10px var(--primary-accent); transition: transform 0.1s;
+        }
+        input[type=range]:active::-webkit-slider-thumb { transform: scale(1.2); }
+        
+        .slider-min-max {
+            display: flex; justify-content: space-between; font-size: 0.65rem; color: var(--text-muted);
+            margin-top: 4px; font-family: 'Rajdhani', sans-serif;
+        }
+
+        /* Select & Number Input (Extra fields) */
+        .cyber-select, .cyber-number {
+            width: 100%; background: var(--input-bg); border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 8px; padding: 12px; color: var(--input-text);
+            font-family: 'Rajdhani', sans-serif; font-size: 1rem; font-weight: 600; transition: all 0.3s;
+            appearance: none; /* remove default arrow for select */
+        }
+        .cyber-select {
+            background-image: url("data:image/svg+xml;charset=US-ASCII,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%22292.4%22%20height%3D%22292.4%22%3E%3Cpath%20fill%3D%22%2300fff2%22%20d%3D%22M287%2069.4a17.6%2017.6%200%200%200-13-5.4H18.4c-5%200-9.3%201.8-12.9%205.4A17.6%2017.6%200%200%200%200%2082.2c0%205%201.8%209.3%205.4%2012.9l128%20127.9c3.6%203.6%207.8%205.4%2012.8%205.4s9.2-1.8%2012.8-5.4L287%2095c3.5-3.5%205.4-7.8%205.4-12.8%200-5-1.9-9.2-5.5-12.8z%22%2F%3E%3C%2Fsvg%3E");
+            background-repeat: no-repeat; background-position: right 12px top 50%; background-size: 10px auto;
+        }
+        [data-theme="light"] .cyber-select { border: 1px solid rgba(0, 0, 0, 0.15); background-image: url("data:image/svg+xml;charset=US-ASCII,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%22292.4%22%20height%3D%22292.4%22%3E%3Cpath%20fill%3D%22%23007bff%22%20d%3D%22M287%2069.4a17.6%2017.6%200%200%200-13-5.4H18.4c-5%200-9.3%201.8-12.9%205.4A17.6%2017.6%200%200%200%200%2082.2c0%205%201.8%209.3%205.4%2012.9l128%20127.9c3.6%203.6%207.8%205.4%2012.8%205.4s9.2-1.8%2012.8-5.4L287%2095c3.5-3.5%205.4-7.8%205.4-12.8%200-5-1.9-9.2-5.5-12.8z%22%2F%3E%3C%2Fsvg%3E"); }
+        
+        .cyber-select:focus, .cyber-number:focus { border-color: var(--primary-accent); box-shadow: 0 0 15px rgba(0, 255, 242, 0.2); }
+        .cyber-number { -moz-appearance: textfield; }
+        .cyber-number::-webkit-outer-spin-button, .cyber-number::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
+
+        /* Action Buttons Container */
+        .action-buttons { display: flex; gap: 15px; margin-top: 30px; }
+        
+        /* Submit Button Styles (Full Width now since Clear is gone) */
         .submit-btn {
-            flex: 2; padding: 1rem; background: transparent; color: var(--primary-accent);
-            border: 1px solid var(--primary-accent); font-family: 'Rajdhani', sans-serif; font-weight: 700;
-            text-transform: uppercase; letter-spacing: 2px; cursor: pointer; border-radius: 4px;
-            transition: all 0.4s ease;
+            width: 100%; 
+            padding: 1.2rem 1.5rem;
+            background: linear-gradient(135deg, rgba(0, 255, 242, 0.1), rgba(0, 255, 242, 0.05));
+            color: var(--primary-accent);
+            border: 1px solid var(--primary-accent);
+            font-family: 'Rajdhani', sans-serif; font-weight: 700;
+            text-transform: uppercase; letter-spacing: 2px; cursor: pointer;
+            border-radius: 6px;
+            position: relative;
+            overflow: hidden;
+            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            display: flex; align-items: center; justify-content: center; gap: 10px;
+            box-shadow: 0 0 10px rgba(0, 255, 242, 0.1);
+            text-shadow: 0 0 5px rgba(0, 255, 242, 0.5);
         }
-        .submit-btn:hover { background: rgba(0, 255, 242, 0.1); box-shadow: 0 0 20px rgba(0, 255, 242, 0.4); }
-        .clear-btn {
-            flex: 1; padding: 1rem; background: transparent; color: var(--text-muted);
-            border: 1px solid var(--text-muted); font-family: 'Rajdhani', sans-serif;
-            font-weight: 700; text-transform: uppercase; cursor: pointer; border-radius: 4px;
+
+        /* Glowing Border Effect */
+        .submit-btn::before {
+            content: '';
+            position: absolute; top: 0; left: -100%;
+            width: 100%; height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(0, 255, 242, 0.4), transparent);
+            transition: 0.5s;
         }
-        .clear-btn:hover { color: #ff3232; border-color: #ff3232; }
+
+        .submit-btn:hover {
+            background: var(--primary-accent);
+            color: #000;
+            box-shadow: 0 0 25px rgba(0, 255, 242, 0.6), inset 0 0 10px rgba(255,255,255,0.5);
+            transform: translateY(-2px);
+            text-shadow: none;
+        }
+        
+        .submit-btn:hover::before { left: 100%; }
+        
+        .submit-btn:active { transform: translateY(1px); }
+
+        /* Icon Animation */
+        .submit-btn i { font-size: 1.2rem; transition: transform 0.3s ease; }
+        .submit-btn:hover i { transform: scale(1.2) rotate(10deg); }
 
         /* Result Section */
         .result-panel { margin-top: 25px; border-top: 1px solid var(--card-border); padding-top: 20px; display: none; animation: slideIn 0.5s ease; }
@@ -182,23 +285,12 @@
             font-size: 0.9rem; 
             line-height: 1.6; 
             color: var(--text-main); 
-            white-space: pre-wrap; /* Preserves newlines */
+            white-space: pre-wrap; 
         }
         
-        /* Markdown-like formatting styles for preview */
-        .report-content strong { 
-            color: var(--primary-accent); 
-            font-weight: 700; 
-        }
-        .report-content h3 { 
-            color: var(--text-main); 
-            margin-top: 15px; 
-            margin-bottom: 5px; 
-            font-size: 1.1rem; 
-            font-weight: 700; 
-            border-bottom: 1px solid var(--card-border);
-            padding-bottom: 5px;
-        }
+        /* Markdown-like formatting styles */
+        .report-content strong { color: var(--primary-accent); font-weight: 700; }
+        .report-content h3 { color: var(--text-main); margin-top: 15px; margin-bottom: 5px; font-size: 1.1rem; font-weight: 700; border-bottom: 1px solid var(--card-border); padding-bottom: 5px; }
         .report-content ul { padding-left: 20px; margin: 10px 0; }
         .report-content li { margin-bottom: 5px; }
 
@@ -216,13 +308,19 @@
         }
         .loader-text { font-family: 'Rajdhani', sans-serif; color: var(--primary-accent); letter-spacing: 3px; animation: pulse 1s infinite alternate; }
 
+        /* Error/Status Message */
+        .status-message {
+            margin-top: 10px; padding: 10px; border-radius: 5px; font-size: 0.9rem; text-align: center; display: none;
+        }
+        .status-error { background: rgba(255, 50, 50, 0.1); border: 1px solid var(--error-glow); color: #ff5050; }
+
         @keyframes scan { 0% { width: 0; opacity: 0; } 50% { width: 200px; opacity: 1; } 100% { width: 0; opacity: 0; margin-left: 200px; } }
         @keyframes pulse { from { opacity: 0.6; } to { opacity: 1; text-shadow: 0 0 10px var(--primary-accent); } }
         @keyframes fadeInDown { from { opacity: 0; transform: translateY(-30px); } to { opacity: 1; transform: translateY(0); } }
         @keyframes slideIn { from { opacity: 0; transform: translateX(-10px); } to { opacity: 1; transform: translateX(0); } }
 
-        @media (max-width: 480px) {
-            .form-grid { grid-template-columns: 1fr; gap: 12px; }
+        @media (max-width: 600px) {
+            .form-grid, .extra-fields-grid { grid-template-columns: 1fr; gap: 15px; }
             .input-group.full-width { grid-column: span 1; }
             .wrapper { padding: 1rem; padding-top: 2rem; }
         }
@@ -252,63 +350,147 @@
 
             <div class="glass-card">
                 <form id="predictForm">
+                    
+                    <!-- EXTRA UI FIELDS (NOT SENT TO MODEL) -->
+                    <div class="section-divider"><span>Personal Profile</span></div>
+                    <div class="extra-fields-grid">
+                        <div class="input-group">
+                            <label class="input-label">Gender</label>
+                            <select name="gender" class="cyber-select">
+                                <option value="Male">Male</option>
+                                <option value="Female">Female</option>
+                            </select>
+                        </div>
+                        <div class="input-group">
+                            <label class="input-label">Age</label>
+                            <input type="number" name="age" class="cyber-number" placeholder="Enter Age">
+                        </div>
+                        <div class="input-group">
+                            <label class="input-label">Degree</label>
+                            <select name="degree" class="cyber-select">
+                                <option value="B.Tech">B.Tech</option>
+                                <option value="M.Tech">M.Tech</option>
+                                <option value="BCA">BCA</option>
+                                <option value="MCA">MCA</option>
+                            </select>
+                        </div>
+                        <div class="input-group">
+                            <label class="input-label">Branch</label>
+                            <select name="branch" class="cyber-select">
+                                <option value="CSE">CSE</option>
+                                <option value="ECE">ECE</option>
+                                <option value="ME">ME</option>
+                                <option value="IT">IT</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <!-- MODEL INPUT FIELDS (SLIDERS) -->
+                    <div class="section-divider"><span>Academic & Skills Analysis</span></div>
                     <div class="form-grid">
-                        <div class="input-group">
-                            <label class="input-label"><span>CGPA</span> <i class="fa-solid fa-graduation-cap"></i></label>
-                            <div class="input-wrapper">
-                                <input type="number" step="0.01" name="cgpa" class="cyber-input" placeholder="0.0 - 10.0" required>
-                                <i class="fa-solid fa-star"></i>
+                        
+                        <!-- CGPA: 0-10 -->
+                        <div class="input-group full-width slider-group">
+                            <div class="slider-header">
+                                <label class="input-label"><i class="fa-solid fa-graduation-cap"></i> CGPA</label>
+                                <div class="slider-value-box">
+                                    <span class="slider-value" id="val-cgpa">7.5</span>
+                                    <input type="number" class="slider-input-mini" id="txt-cgpa" value="7.5" step="0.1">
+                                </div>
                             </div>
+                            <input type="range" name="cgpa" id="cgpa" min="0" max="10" step="0.1" value="7.5">
+                            <div class="slider-min-max">Min: 0 | Max: 10</div>
                         </div>
-                        <div class="input-group">
-                            <label class="input-label"><span>Aptitude</span> <i class="fa-solid fa-brain"></i></label>
-                            <div class="input-wrapper">
-                                <input type="number" name="aptitude_score" class="cyber-input" placeholder="Score (0-100)" required>
-                                <i class="fa-solid fa-chart-pie"></i>
+
+                        <!-- Aptitude: 0-100 -->
+                        <div class="input-group full-width slider-group">
+                            <div class="slider-header">
+                                <label class="input-label"><i class="fa-solid fa-brain"></i> Aptitude Score</label>
+                                <div class="slider-value-box">
+                                    <span class="slider-value" id="val-aptitude_score">60</span>
+                                    <input type="number" class="slider-input-mini" id="txt-aptitude_score" value="60" step="1">
+                                </div>
                             </div>
+                            <input type="range" name="aptitude_score" id="aptitude_score" min="0" max="100" step="1" value="60">
+                            <div class="slider-min-max">Min: 0 | Max: 100</div>
                         </div>
-                        <div class="input-group">
-                            <label class="input-label"><span>Coding</span> <i class="fa-solid fa-code"></i></label>
-                            <div class="input-wrapper">
-                                <input type="number" name="coding_skills" class="cyber-input" placeholder="Score (0-100)" required>
-                                <i class="fa-solid fa-terminal"></i>
+
+                        <!-- Coding Skills: 0-10 -->
+                        <div class="input-group slider-group">
+                            <div class="slider-header">
+                                <label class="input-label"><i class="fa-solid fa-code"></i> Coding</label>
+                                <div class="slider-value-box">
+                                    <span class="slider-value" id="val-coding_skills">5</span>
+                                    <input type="number" class="slider-input-mini" id="txt-coding_skills" value="5" step="1">
+                                </div>
                             </div>
+                            <input type="range" name="coding_skills" id="coding_skills" min="0" max="10" step="1" value="5">
+                            <div class="slider-min-max">Min: 0 | Max: 10</div>
                         </div>
-                        <div class="input-group">
-                            <label class="input-label"><span>Internships</span> <i class="fa-solid fa-briefcase"></i></label>
-                            <div class="input-wrapper">
-                                <input type="number" name="internships" class="cyber-input" placeholder="Count" required>
-                                <i class="fa-solid fa-building-user"></i>
+
+                        <!-- Communication Skills: 1-10 -->
+                        <div class="input-group slider-group">
+                            <div class="slider-header">
+                                <label class="input-label"><i class="fa-solid fa-comments"></i> Comm. Skills</label>
+                                <div class="slider-value-box">
+                                    <span class="slider-value" id="val-communication_skills">5</span>
+                                    <input type="number" class="slider-input-mini" id="txt-communication_skills" value="5" step="1">
+                                </div>
                             </div>
+                            <input type="range" name="communication_skills" id="communication_skills" min="1" max="10" step="1" value="5">
+                            <div class="slider-min-max">Min: 1 | Max: 10</div>
                         </div>
-                        <div class="input-group">
-                            <label class="input-label"><span>Certifications</span> <i class="fa-solid fa-certificate"></i></label>
-                            <div class="input-wrapper">
-                                <input type="number" name="certifications" class="cyber-input" placeholder="Count" required>
-                                <i class="fa-solid fa-award"></i>
+
+                        <!-- Internships: 0-5 -->
+                        <div class="input-group slider-group">
+                            <div class="slider-header">
+                                <label class="input-label"><i class="fa-solid fa-briefcase"></i> Internships</label>
+                                <div class="slider-value-box">
+                                    <span class="slider-value" id="val-internships">1</span>
+                                    <input type="number" class="slider-input-mini" id="txt-internships" value="1" step="1">
+                                </div>
                             </div>
+                            <input type="range" name="internships" id="internships" min="0" max="5" step="1" value="1">
+                            <div class="slider-min-max">Min: 0 | Max: 5</div>
                         </div>
-                        <div class="input-group">
-                            <label class="input-label"><span>Communication Skills</span> <i class="fa-solid fa-comments"></i></label>
-                            <div class="input-wrapper">
-                                <input type="number" name="communication_skills" class="cyber-input" placeholder="Score (0-100)" required>
-                                <i class="fa-solid fa-user-group"></i>
+
+                        <!-- Certifications: 0-10 -->
+                        <div class="input-group slider-group">
+                            <div class="slider-header">
+                                <label class="input-label"><i class="fa-solid fa-certificate"></i> Certifications</label>
+                                <div class="slider-value-box">
+                                    <span class="slider-value" id="val-certifications">2</span>
+                                    <input type="number" class="slider-input-mini" id="txt-certifications" value="2" step="1">
+                                </div>
                             </div>
+                            <input type="range" name="certifications" id="certifications" min="0" max="10" step="1" value="2">
+                            <div class="slider-min-max">Min: 0 | Max: 10</div>
                         </div>
-                        <div class="input-group full-width">
-                            <label class="input-label"><span>Projects</span> <i class="fa-solid fa-folder-open"></i></label>
-                            <div class="input-wrapper">
-                                <input type="number" name="projects" class="cyber-input" placeholder="Number of projects completed" required>
-                                <i class="fa-solid fa-diagram-project"></i>
+
+                        <!-- Projects: 0-10 -->
+                        <div class="input-group full-width slider-group">
+                            <div class="slider-header">
+                                <label class="input-label"><i class="fa-solid fa-folder-open"></i> Projects</label>
+                                <div class="slider-value-box">
+                                    <span class="slider-value" id="val-projects">3</span>
+                                    <input type="number" class="slider-input-mini" id="txt-projects" value="3" step="1">
+                                </div>
                             </div>
+                            <input type="range" name="projects" id="projects" min="0" max="10" step="1" value="3">
+                            <div class="slider-min-max">Min: 0 | Max: 10</div>
                         </div>
                     </div>
 
                     <div class="action-buttons">
-                        <button type="submit" class="submit-btn">Run Analysis <i class="fa-solid fa-microchip" style="margin-left: 8px;"></i></button>
-                        <button type="button" class="clear-btn" id="clearBtn"><i class="fa-solid fa-trash"></i> Clear</button>
+                        <!-- Submit Button is now full width -->
+                        <button type="submit" class="submit-btn">
+                            Run Analysis <i class="fa-solid fa-microchip"></i>
+                        </button>
                     </div>
                 </form>
+
+                <!-- Status/Error Area -->
+                <div id="statusArea" class="status-message"></div>
 
                 <!-- Prediction Result -->
                 <div class="result-panel" id="resultPanel">
@@ -394,7 +576,6 @@
 
         // Logic
         const form = document.getElementById('predictForm');
-        const clearBtn = document.getElementById('clearBtn');
         const loader = document.getElementById('loader');
         const resultPanel = document.getElementById('resultPanel');
         const resultBox = document.getElementById('resultBox');
@@ -403,28 +584,81 @@
         const aiReportContent = document.getElementById('aiReportContent');
         const generateBtn = document.getElementById('generateBtn');
         const downloadBtn = document.getElementById('downloadBtn');
+        const statusArea = document.getElementById('statusArea');
 
         let currentData = {}; 
 
-        clearBtn.addEventListener('click', () => {
-            form.reset();
-            resultPanel.style.display = 'none';
-            aiContainer.style.display = 'none';
-            aiReportContent.innerHTML = '';
-            // Reset button states
-            generateBtn.style.display = 'flex';
-            downloadBtn.style.display = 'none';
-            currentData = {};
+        // --- Slider + Text Input Sync Logic ---
+        const sliders = document.querySelectorAll('input[type="range"]');
+        sliders.forEach(slider => {
+            const txtId = "txt-" + slider.name;
+            const valId = "val-" + slider.name;
+            const txtInput = document.getElementById(txtId);
+            const valDisplay = document.getElementById(valId);
+
+            // Slider changes -> Update Text & Display
+            slider.addEventListener('input', function() {
+                txtInput.value = this.value;
+                valDisplay.textContent = this.value;
+                updateValueColor(valDisplay, this.value, this.max);
+            });
+
+            // Text Input changes -> Update Slider & Display
+            if(txtInput) {
+                txtInput.addEventListener('input', function() {
+                    let val = parseFloat(this.value);
+                    
+                    // Validation: Ensure value is within slider bounds
+                    let min = parseFloat(slider.min);
+                    let max = parseFloat(slider.max);
+                    
+                    if (isNaN(val)) val = min;
+                    if (val < min) val = min;
+                    if (val > max) val = max; // Clamp to max visually
+
+                    slider.value = val;
+                    valDisplay.textContent = val;
+                    updateValueColor(valDisplay, val, slider.max);
+                });
+
+                // On blur, if out of bounds, clamp it fully in text box
+                txtInput.addEventListener('change', function() {
+                    let val = parseFloat(this.value);
+                    if (isNaN(val) || val < parseFloat(slider.min) || val > parseFloat(slider.max)) {
+                        // If user entered garbage, reset to slider value
+                        this.value = slider.value;
+                        valDisplay.textContent = slider.value;
+                    }
+                });
+            }
         });
+
+        function updateValueColor(element, value, max) {
+            if(parseFloat(value) > (parseFloat(max) * 0.8)) {
+                element.style.color = "#00ff73";
+            } else {
+                element.style.color = "var(--text-main)";
+            }
+        }
 
         form.addEventListener('submit', async function(e) {
             e.preventDefault();
             loader.classList.add('active');
+            statusArea.style.display = 'none';
 
             // Hide previous results if any
             aiContainer.style.display = 'none';
 
             const formData = new FormData(form);
+
+            // ---------------------------------------------------------
+            // FILTER: Remove extra UI fields before sending to Backend
+            // ---------------------------------------------------------
+            formData.delete('gender');
+            formData.delete('age');
+            formData.delete('degree');
+            formData.delete('branch');
+            // ---------------------------------------------------------
 
             try {
                 const response = await fetch('/predict', {
@@ -437,9 +671,7 @@
                 const data = await response.json();
                 
                 if (data.error) {
-                    alert(data.error);
-                    loader.classList.remove('active');
-                    return;
+                    throw new Error(data.error);
                 }
 
                 // Update UI for Prediction
@@ -472,21 +704,22 @@
             } catch (error) {
                 console.error(error);
                 loader.classList.remove('active');
-                alert("Backend Connection Error: " + error.message);
+                // Show UI error message instead of native alert
+                statusArea.textContent = "Error: " + error.message;
+                statusArea.className = "status-message status-error";
+                statusArea.style.display = 'block';
             }
         });
 
-        // NEW: Helper function to format Markdown (**bold**) and newlines (\n)
+        // Helper function to format Markdown
         function formatMarkdownHTML(text) {
             if (!text) return '';
-            // 1. Replace \n with <br>
             let formatted = text.replace(/\n/g, '<br>');
-            // 2. Replace **text** with <b>text</b> (using regex)
             formatted = formatted.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
             return formatted;
         }
 
-        // NEW: Generate Report Logic
+        // Generate Report Logic
         generateBtn.addEventListener('click', async () => {
             if (!currentData.prediction) return;
 
@@ -514,7 +747,7 @@
                 // Store RAW text for PDF generation
                 currentData.ai_report = resData.ai_report;
 
-                // Format text for HTML Preview (converts ** to <b> and \n to <br>)
+                // Format text for HTML Preview
                 const previewHTML = formatMarkdownHTML(resData.ai_report);
 
                 // Update UI with Report
@@ -526,7 +759,7 @@
 
             } catch (error) {
                 console.error("AI Error:", error);
-                aiReportContent.innerHTML = `<span style="color:red">Error: ${error.message}</span>`;
+                aiReportContent.innerHTML = `<span style="color:var(--error-glow)">Error: ${error.message}</span>`;
                 generateBtn.innerHTML = 'Retry';
                 generateBtn.disabled = false;
             }
@@ -561,7 +794,9 @@
 
             } catch (error) {
                 console.error("Download error:", error);
-                alert("Error downloading PDF: " + error.message);
+                statusArea.textContent = "Error downloading PDF: " + error.message;
+                statusArea.className = "status-message status-error";
+                statusArea.style.display = 'block';
             } finally {
                 downloadBtn.innerHTML = btnOriginalHTML;
                 downloadBtn.disabled = false;

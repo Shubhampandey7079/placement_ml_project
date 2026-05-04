@@ -90,10 +90,10 @@ STUDENT DATA
 ========================
 CGPA: {data['cgpa']}/10
 Aptitude: {data['aptitude_score']}/100
-Coding: {data['coding_skills']}/100
+Coding: {data['coding_skills']}/10
 Communication: {data['communication_skills']}/100
 Projects: {data['projects']}/10
-Internships: {data['internships']}/10
+Internships: {data['internships']}/5
 Certifications: {data['certifications']}/10
 
 Prediction:
@@ -325,13 +325,7 @@ def predict():
         scaled = scaler.transform(df)
         pred = model.predict(scaled)[0]
         prob = model.predict_proba(scaled)[0][1]
-    else:
-        # Dummy Logic for demonstration
-        # Calculate average of core scores
-        avg_score = (input_data['cgpa'] * 10 + input_data['coding_skills'] + input_data['aptitude_score']) / 3
-        pred = 1 if avg_score > 60 else 0
-        prob = 0.85 if pred == 1 else 0.15
-
+    
     result = "Placed" if pred == 1 else "Not Placed"
 
     return jsonify({
