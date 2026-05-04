@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>AI Placement Engine</title>
+    <title>AI Placement Engine & Roadmap</title>
     
     <!-- Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -16,7 +16,7 @@
     <style>
         :root {
             --bg-color: #030508;
-            --card-bg: rgba(10, 15, 30, 0.70); /* Slightly increased opacity for readability */
+            --card-bg: rgba(10, 15, 30, 0.85);
             --card-border: rgba(100, 255, 218, 0.15);
             --primary-accent: #00fff2;
             --secondary-accent: #7000ff;
@@ -24,434 +24,214 @@
             --text-muted: #94a3b8;
             --success-glow: rgba(0, 255, 115, 0.6);
             --error-glow: rgba(255, 50, 50, 0.6);
+            --input-bg: rgba(0, 0, 0, 0.4);
+            --input-text: #ffffff;
+            --header-bg: rgba(3, 5, 8, 0.8);
         }
 
-        * {
-            box-sizing: border-box;
-            margin: 0;
-            padding: 0;
-            outline: none;
-            -webkit-tap-highlight-color: transparent;
+        [data-theme="light"] {
+            --bg-color: #f0f2f5;
+            --card-bg: rgba(255, 255, 255, 0.95);
+            --card-border: rgba(0, 0, 0, 0.1);
+            --primary-accent: #007bff;
+            --secondary-accent: #6f42c1;
+            --text-main: #1a202c;
+            --text-muted: #64748b;
+            --input-bg: rgba(255, 255, 255, 0.8);
+            --input-text: #333333;
+            --header-bg: rgba(255, 255, 255, 0.9);
         }
 
-        html {
-            /* Fixes 100vh issues on mobile browsers */
-            height: -webkit-fill-available;
-            height: 100%;
-        }
-
+        * { box-sizing: border-box; margin: 0; padding: 0; outline: none; -webkit-tap-highlight-color: transparent; }
+        
         body {
             background-color: var(--bg-color);
             color: var(--text-main);
             font-family: 'Outfit', sans-serif;
-            /* Fallback to min-h-screen behavior */
             min-height: 100vh;
-            min-height: -webkit-fill-available;
-            overflow-x: hidden; /* Strictly prevent horizontal scroll */
+            overflow-x: hidden;
             display: flex;
             flex-direction: column;
             position: relative;
+            transition: background-color 0.4s ease, color 0.4s ease;
         }
 
-        /* Animated Background Canvas */
-        #bg-canvas {
-            position: fixed; /* Changed to fixed for stability */
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            z-index: 0;
-            pointer-events: none;
-        }
+        /* Background Canvas */
+        #bg-canvas { position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: 0; pointer-events: none; }
 
-        /* Layout Wrapper */
+        /* Layout */
         .wrapper {
-            position: relative;
-            z-index: 10;
-            width: 100%;
-            /* Use min-height instead of height to allow scrolling on small mobile keyboards */
-            min-height: 100vh;
-            min-height: -webkit-fill-available;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            padding: 2rem 1rem; /* Improved default padding */
+            position: relative; z-index: 10; width: 100%; min-height: 100vh;
+            display: flex; justify-content: center; align-items: flex-start; padding: 2rem 1rem;
         }
+        .dashboard-container { width: 100%; max-width: 650px; margin: auto; perspective: 1000px; }
 
-        /* Main Container */
-        .dashboard-container {
-            width: 100%;
-            max-width: 480px; /* Slightly reduced for better proportion */
-            perspective: 1000px;
-            margin: auto; /* Ensures centering within flex container */
+        /* Header */
+        .top-controls {
+            display: flex; justify-content: space-between; align-items: center;
+            margin-bottom: 1.5rem; background: var(--header-bg); backdrop-filter: blur(10px);
+            padding: 10px 15px; border-radius: 12px; border: 1px solid var(--card-border);
         }
-
-        /* Header Section */
-        .hero-header {
-            text-align: center;
-            margin-bottom: 1.5rem;
-            animation: fadeInDown 1s ease-out;
-            padding: 0 10px;
+        .brand-title {
+            font-family: 'Rajdhani', sans-serif; font-weight: 700; font-size: 1.1rem;
+            letter-spacing: 1px; background: linear-gradient(90deg, var(--text-main), var(--primary-accent));
+            -webkit-background-clip: text; -webkit-text-fill-color: transparent;
         }
+        .icon-btn {
+            background: transparent; border: 1px solid var(--card-border); color: var(--text-muted);
+            width: 36px; height: 36px; border-radius: 50%; display: flex; align-items: center; justify-content: center;
+            cursor: pointer; transition: all 0.3s ease;
+        }
+        .icon-btn:hover { color: var(--primary-accent); border-color: var(--primary-accent); transform: translateY(-2px); }
 
+        /* Hero */
+        .hero-header { text-align: center; margin-bottom: 1.5rem; animation: fadeInDown 1s ease-out; }
         .hero-header h1 {
-            font-family: 'Rajdhani', sans-serif;
-            /* Fluid font size */
-            font-size: clamp(1.8rem, 5vw, 2.5rem); 
-            font-weight: 700;
-            letter-spacing: 2px;
-            text-transform: uppercase;
-            background: linear-gradient(90deg, #fff, var(--primary-accent));
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            text-shadow: 0 0 20px rgba(0, 255, 242, 0.3);
-            margin-bottom: 5px;
-            line-height: 1.2;
+            font-family: 'Rajdhani', sans-serif; font-size: clamp(1.8rem, 5vw, 2.5rem); font-weight: 700;
+            letter-spacing: 2px; text-transform: uppercase; background: linear-gradient(90deg, var(--text-main), var(--primary-accent));
+            -webkit-background-clip: text; -webkit-text-fill-color: transparent;
         }
 
-        .hero-header p {
-            color: var(--text-muted);
-            font-size: 0.9rem;
-            letter-spacing: 1px;
-        }
-
-        /* Glassmorphism Card */
+        /* Glass Card */
         .glass-card {
-            background: var(--card-bg);
-            backdrop-filter: blur(20px);
-            -webkit-backdrop-filter: blur(20px);
-            border: 1px solid var(--card-border);
-            border-radius: 20px;
-            padding: clamp(1.5rem, 5vw, 2.5rem); /* Fluid padding */
-            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.5),
-                        0 0 0 1px rgba(255, 255, 255, 0.05) inset;
-            transform-style: preserve-3d;
-            animation: fadeInUp 1s ease-out 0.2s backwards;
-            position: relative;
-            overflow: hidden;
-            width: 100%;
+            background: var(--card-bg); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
+            border: 1px solid var(--card-border); border-radius: 20px;
+            padding: clamp(1.5rem, 4vw, 2.5rem); box-shadow: 0 20px 50px rgba(0, 0, 0, 0.5);
+            width: 100%; transition: background-color 0.4s ease; position: relative; overflow: hidden;
         }
-
-        /* Decorative top line */
         .glass-card::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 2px;
+            content: ''; position: absolute; top: 0; left: 0; width: 100%; height: 2px;
             background: linear-gradient(90deg, transparent, var(--primary-accent), transparent);
-            opacity: 0.8;
         }
 
-        /* Form Styling */
-        .input-group {
-            position: relative;
-            margin-bottom: clamp(1.2rem, 4vw, 1.5rem);
-        }
-
+        /* Form Grid */
+        .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 1.5rem; }
+        .input-group.full-width { grid-column: span 2; }
         .input-label {
-            display: block;
-            font-size: 0.75rem;
-            color: var(--primary-accent);
-            margin-bottom: 8px;
-            font-weight: 600;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-            display: flex;
-            justify-content: space-between;
+            display: flex; justify-content: space-between; font-size: 0.7rem; color: var(--primary-accent);
+            margin-bottom: 6px; font-weight: 600; text-transform: uppercase; letter-spacing: 1px;
         }
-
-        .input-wrapper {
-            position: relative;
-        }
-
+        .input-wrapper { position: relative; }
         .input-wrapper i {
-            position: absolute;
-            left: 15px;
-            top: 50%;
-            transform: translateY(-50%);
-            color: var(--text-muted);
-            transition: color 0.3s;
-            z-index: 2;
+            position: absolute; left: 12px; top: 50%; transform: translateY(-50%); color: var(--text-muted);
+            font-size: 0.9rem; z-index: 2; transition: color 0.3s;
         }
-
         .cyber-input {
-            width: 100%;
-            background: rgba(0, 0, 0, 0.4);
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            border-radius: 8px;
-            padding: 14px 14px 14px 45px;
-            color: white;
-            font-family: 'Rajdhani', sans-serif;
-            font-size: 1.1rem;
-            font-weight: 600;
-            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-            /* Prevent iOS zoom on focus */
-            font-size: 16px; 
+            width: 100%; background: var(--input-bg); border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 8px; padding: 12px 12px 12px 36px; color: var(--input-text);
+            font-family: 'Rajdhani', sans-serif; font-size: 1rem; font-weight: 600; transition: all 0.3s;
         }
+        [data-theme="light"] .cyber-input { border: 1px solid rgba(0, 0, 0, 0.15); }
+        .cyber-input:focus { border-color: var(--primary-accent); box-shadow: 0 0 15px rgba(0, 255, 242, 0.2); }
 
-        .cyber-input::placeholder {
-            color: rgba(255, 255, 255, 0.2);
-            font-weight: 400;
-            font-family: 'Outfit', sans-serif;
-        }
-
-        .cyber-input:focus {
-            border-color: var(--primary-accent);
-            box-shadow: 0 0 15px rgba(0, 255, 242, 0.2);
-            background: rgba(0, 0, 0, 0.6);
-        }
-
-        .cyber-input:focus + i {
-            color: var(--primary-accent);
-        }
-
-        /* Submit Button */
+        /* Buttons */
+        .action-buttons { display: flex; gap: 15px; margin-top: 10px; }
         .submit-btn {
-            width: 100%;
-            padding: clamp(0.8rem, 3vw, 1rem); /* Fluid padding */
-            margin-top: 10px;
-            background: transparent;
-            color: var(--primary-accent);
-            border: 1px solid var(--primary-accent);
-            font-family: 'Rajdhani', sans-serif;
-            font-weight: 700;
-            font-size: 1.1rem;
-            text-transform: uppercase;
-            letter-spacing: 2px;
-            cursor: pointer;
-            position: relative;
-            overflow: hidden;
+            flex: 2; padding: 1rem; background: transparent; color: var(--primary-accent);
+            border: 1px solid var(--primary-accent); font-family: 'Rajdhani', sans-serif; font-weight: 700;
+            text-transform: uppercase; letter-spacing: 2px; cursor: pointer; border-radius: 4px;
             transition: all 0.4s ease;
-            border-radius: 4px;
         }
-
-        .submit-btn::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: -100%;
-            width: 100%;
-            height: 100%;
-            background: linear-gradient(90deg, transparent, rgba(0, 255, 242, 0.2), transparent);
-            transition: 0.5s;
+        .submit-btn:hover { background: rgba(0, 255, 242, 0.1); box-shadow: 0 0 20px rgba(0, 255, 242, 0.4); }
+        .clear-btn {
+            flex: 1; padding: 1rem; background: transparent; color: var(--text-muted);
+            border: 1px solid var(--text-muted); font-family: 'Rajdhani', sans-serif;
+            font-weight: 700; text-transform: uppercase; cursor: pointer; border-radius: 4px;
         }
-
-        .submit-btn:hover {
-            background: rgba(0, 255, 242, 0.1);
-            box-shadow: 0 0 20px rgba(0, 255, 242, 0.4);
-            text-shadow: 0 0 8px var(--primary-accent);
-        }
-
-        .submit-btn:hover::before {
-            left: 100%;
-        }
-
-        .submit-btn:active {
-            transform: scale(0.98);
-        }
+        .clear-btn:hover { color: #ff3232; border-color: #ff3232; }
 
         /* Result Section */
-        .result-panel {
-            margin-top: 25px;
-            border-top: 1px solid rgba(255, 255, 255, 0.1);
-            padding-top: 20px;
-            display: none;
-            animation: slideIn 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-        }
-
-        .result-header {
-            font-size: 0.75rem;
-            color: var(--text-muted);
-            text-transform: uppercase;
-            margin-bottom: 10px;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-        }
-
+        .result-panel { margin-top: 25px; border-top: 1px solid var(--card-border); padding-top: 20px; display: none; animation: slideIn 0.5s ease; }
+        .result-header { font-size: 0.75rem; color: var(--text-muted); text-transform: uppercase; margin-bottom: 10px; }
         .result-box {
-            background: rgba(0, 0, 0, 0.3);
-            border: 1px solid rgba(255, 255, 255, 0.05);
-            padding: 15px;
-            border-radius: 6px;
-            font-family: 'Rajdhani', sans-serif;
-            font-size: 1.2rem; /* Scaled down slightly for mobile */
-            font-weight: 700;
-            text-align: center;
-            position: relative;
-            min-height: 60px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            word-wrap: break-word; /* Ensure long text doesn't overflow */
+            background: var(--input-bg); border: 1px solid rgba(255, 255, 255, 0.05); padding: 15px;
+            border-radius: 6px; font-family: 'Rajdhani', sans-serif; font-size: 1.2rem; font-weight: 700;
+            text-align: center; margin-bottom: 20px;
         }
+        .result-placed { color: #00ff73; border-color: rgba(0, 255, 115, 0.5); box-shadow: 0 0 15px rgba(0, 255, 115, 0.15); }
+        .result-not-placed { color: #ff3232; border-color: rgba(255, 50, 50, 0.5); }
 
-        .result-placed {
-            color: #00ff73;
-            border-color: rgba(0, 255, 115, 0.3);
-            box-shadow: 0 0 15px rgba(0, 255, 115, 0.1);
+        /* AI Report Section */
+        .ai-report-container {
+            background: rgba(255, 255, 255, 0.03); 
+            border-radius: 8px; 
+            padding: 20px; 
+            margin-top: 20px;
+            border: 1px solid var(--card-border); 
+            max-height: 600px;
+            overflow-y: auto;
         }
+        /* Custom Scrollbar */
+        .ai-report-container::-webkit-scrollbar { width: 6px; }
+        .ai-report-container::-webkit-scrollbar-track { background: rgba(0,0,0,0.1); }
+        .ai-report-container::-webkit-scrollbar-thumb { background: var(--card-border); border-radius: 3px; }
 
-        .result-not-placed {
-            color: #ff3232;
-            border-color: rgba(255, 50, 50, 0.3);
-            box-shadow: 0 0 15px rgba(255, 50, 50, 0.1);
+        .ai-title {
+            display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;
+            color: var(--secondary-accent); font-family: 'Rajdhani', sans-serif; font-weight: 700; text-transform: uppercase;
         }
-
-        /* Loading Overlay */
-        .loader-overlay {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(3, 5, 8, 0.9);
-            z-index: 100;
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-            opacity: 0;
-            pointer-events: none;
-            transition: opacity 0.3s;
-            backdrop-filter: blur(5px);
+        .download-btn {
+            background: transparent; border: 1px solid var(--secondary-accent); color: var(--secondary-accent);
+            padding: 5px 10px; font-size: 0.8rem; border-radius: 4px; cursor: pointer; display: flex; align-items: center; gap: 5px;
+            transition: all 0.2s;
         }
-
-        .loader-overlay.active {
-            opacity: 1;
-            pointer-events: all;
-        }
-
-        .scan-line {
-            width: 200px;
-            height: 2px;
-            background: var(--primary-accent);
-            box-shadow: 0 0 10px var(--primary-accent);
-            animation: scan 1.5s infinite linear;
-            margin-bottom: 20px;
-        }
-
-        .loader-text {
-            font-family: 'Rajdhani', sans-serif;
-            color: var(--primary-accent);
-            letter-spacing: 3px;
-            font-size: 1.1rem; /* Adjusted for mobile */
-            animation: pulse 1s infinite alternate;
-        }
-
-        /* Animations */
-        @keyframes fadeInDown {
-            from { opacity: 0; transform: translateY(-30px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-
-        @keyframes fadeInUp {
-            from { opacity: 0; transform: translateY(30px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-
-        @keyframes scan {
-            0% { width: 0; opacity: 0; }
-            50% { width: 200px; opacity: 1; }
-            100% { width: 0; opacity: 0; margin-left: 200px; }
-        }
-
-        @keyframes pulse {
-            from { opacity: 0.6; }
-            to { opacity: 1; text-shadow: 0 0 10px var(--primary-accent); }
-        }
-
-        @keyframes slideIn {
-            from { opacity: 0; transform: translateX(-10px); }
-            to { opacity: 1; transform: translateX(0); }
-        }
-
-        /* =========================================
-           RESPONSIVE MEDIA QUERIES
-           ========================================= */
+        .download-btn:hover { background: rgba(112, 0, 255, 0.1); }
+        .download-btn:disabled { opacity: 0.5; cursor: not-allowed; }
         
-        /* Tablet & Small Laptops */
-        @media (max-width: 768px) {
-            .wrapper {
-                padding: 1.5rem;
-            }
-            
-            .hero-header h1 {
-                font-size: 2.2rem;
-            }
+        .report-content { 
+            font-size: 0.9rem; 
+            line-height: 1.6; 
+            color: var(--text-main); 
+            white-space: pre-wrap; /* Preserves newlines */
         }
+        
+        /* Markdown-like formatting styles for preview */
+        .report-content strong { 
+            color: var(--primary-accent); 
+            font-weight: 700; 
+        }
+        .report-content h3 { 
+            color: var(--text-main); 
+            margin-top: 15px; 
+            margin-bottom: 5px; 
+            font-size: 1.1rem; 
+            font-weight: 700; 
+            border-bottom: 1px solid var(--card-border);
+            padding-bottom: 5px;
+        }
+        .report-content ul { padding-left: 20px; margin: 10px 0; }
+        .report-content li { margin-bottom: 5px; }
 
-        /* Mobile Devices */
+        /* Loader */
+        .loader-overlay {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(3, 5, 8, 0.9);
+            z-index: 100; display: flex; flex-direction: column; justify-content: center; align-items: center;
+            opacity: 0; pointer-events: none; transition: opacity 0.3s;
+        }
+        [data-theme="light"] .loader-overlay { background: rgba(255, 255, 255, 0.9); }
+        .loader-overlay.active { opacity: 1; pointer-events: all; }
+        .scan-line {
+            width: 200px; height: 2px; background: var(--primary-accent); box-shadow: 0 0 10px var(--primary-accent);
+            animation: scan 1.5s infinite linear; margin-bottom: 20px;
+        }
+        .loader-text { font-family: 'Rajdhani', sans-serif; color: var(--primary-accent); letter-spacing: 3px; animation: pulse 1s infinite alternate; }
+
+        @keyframes scan { 0% { width: 0; opacity: 0; } 50% { width: 200px; opacity: 1; } 100% { width: 0; opacity: 0; margin-left: 200px; } }
+        @keyframes pulse { from { opacity: 0.6; } to { opacity: 1; text-shadow: 0 0 10px var(--primary-accent); } }
+        @keyframes fadeInDown { from { opacity: 0; transform: translateY(-30px); } to { opacity: 1; transform: translateY(0); } }
+        @keyframes slideIn { from { opacity: 0; transform: translateX(-10px); } to { opacity: 1; transform: translateX(0); } }
+
         @media (max-width: 480px) {
-            body {
-                /* Allow body to scroll if content overflows viewport height (e.g. keyboard open) */
-                height: auto; 
-                overflow-y: auto;
-            }
-
-            .wrapper {
-                padding: 1rem;
-                min-height: 100vh; /* Ensure full height visual */
-                padding-bottom: 2rem; /* Extra bottom spacing */
-            }
-
-            .dashboard-container {
-                max-width: 100%;
-            }
-
-            .glass-card {
-                padding: 1.5rem;
-                /* Ensure border radius matches mobile aesthetic */
-                border-radius: 16px; 
-            }
-
-            .hero-header {
-                margin-bottom: 1.2rem;
-            }
-
-            .hero-header h1 {
-                font-size: 1.8rem;
-                letter-spacing: 1px;
-            }
-
-            .hero-header p {
-                font-size: 0.8rem;
-            }
-
-            .input-group {
-                margin-bottom: 1rem;
-            }
-
-            .input-label {
-                font-size: 0.7rem;
-                margin-bottom: 6px;
-            }
-
-            .cyber-input {
-                padding: 12px 12px 12px 40px;
-                border-radius: 6px;
-            }
-
-            .submit-btn {
-                font-size: 1rem;
-                padding: 14px;
-            }
-
-            .result-box {
-                font-size: 1.1rem;
-                padding: 12px;
-            }
+            .form-grid { grid-template-columns: 1fr; gap: 12px; }
+            .input-group.full-width { grid-column: span 1; }
+            .wrapper { padding: 1rem; padding-top: 2rem; }
         }
     </style>
 </head>
 <body>
 
-    <!-- Background Animation Canvas -->
     <canvas id="bg-canvas"></canvas>
 
-    <!-- Loader Overlay -->
     <div class="loader-overlay" id="loader">
         <div class="scan-line"></div>
         <div class="loader-text">ANALYZING DATA...</div>
@@ -459,51 +239,100 @@
 
     <div class="wrapper">
         <div class="dashboard-container">
+            
+            <div class="top-controls">
+                <div class="brand-title"><i class="fa-solid fa-robot"></i> AI ENGINE</div>
+                <button class="icon-btn" id="themeToggle" title="Toggle Dark/Light Mode"><i class="fa-solid fa-moon"></i></button>
+            </div>
+
             <div class="hero-header">
-                <h1>AI Placement <span style="color:var(--primary-accent)">Model</span></h1>
-                <p>Campus Placement Prediction Engine</p>
+                <h1>Placement <span style="color:var(--primary-accent)">Model</span></h1>
+                <p>AI-Powered Prediction & Roadmap</p>
             </div>
 
             <div class="glass-card">
-                <form action="/predict" method="post" id="predictForm">
-                    
-                    <!-- Input: CGPA -->
-                    <div class="input-group">
-                        <label class="input-label">
-                            <span>Cumulative GPA</span>
-                            <i class="fa-solid fa-database" style="font-size: 0.7rem;"></i>
-                        </label>
-                        <div class="input-wrapper">
-                            <input type="number" step="0.01" name="cgpa" class="cyber-input" placeholder="e.g. 8.45" required>
-                            <i class="fa-solid fa-graduation-cap"></i>
+                <form id="predictForm">
+                    <div class="form-grid">
+                        <div class="input-group">
+                            <label class="input-label"><span>CGPA</span> <i class="fa-solid fa-graduation-cap"></i></label>
+                            <div class="input-wrapper">
+                                <input type="number" step="0.01" name="cgpa" class="cyber-input" placeholder="0.0 - 10.0" required>
+                                <i class="fa-solid fa-star"></i>
+                            </div>
+                        </div>
+                        <div class="input-group">
+                            <label class="input-label"><span>Aptitude</span> <i class="fa-solid fa-brain"></i></label>
+                            <div class="input-wrapper">
+                                <input type="number" name="aptitude_score" class="cyber-input" placeholder="Score (0-100)" required>
+                                <i class="fa-solid fa-chart-pie"></i>
+                            </div>
+                        </div>
+                        <div class="input-group">
+                            <label class="input-label"><span>Coding</span> <i class="fa-solid fa-code"></i></label>
+                            <div class="input-wrapper">
+                                <input type="number" name="coding_skills" class="cyber-input" placeholder="Score (0-100)" required>
+                                <i class="fa-solid fa-terminal"></i>
+                            </div>
+                        </div>
+                        <div class="input-group">
+                            <label class="input-label"><span>Internships</span> <i class="fa-solid fa-briefcase"></i></label>
+                            <div class="input-wrapper">
+                                <input type="number" name="internships" class="cyber-input" placeholder="Count" required>
+                                <i class="fa-solid fa-building-user"></i>
+                            </div>
+                        </div>
+                        <div class="input-group">
+                            <label class="input-label"><span>Certifications</span> <i class="fa-solid fa-certificate"></i></label>
+                            <div class="input-wrapper">
+                                <input type="number" name="certifications" class="cyber-input" placeholder="Count" required>
+                                <i class="fa-solid fa-award"></i>
+                            </div>
+                        </div>
+                        <div class="input-group">
+                            <label class="input-label"><span>Communication Skills</span> <i class="fa-solid fa-comments"></i></label>
+                            <div class="input-wrapper">
+                                <input type="number" name="communication_skills" class="cyber-input" placeholder="Score (0-100)" required>
+                                <i class="fa-solid fa-user-group"></i>
+                            </div>
+                        </div>
+                        <div class="input-group full-width">
+                            <label class="input-label"><span>Projects</span> <i class="fa-solid fa-folder-open"></i></label>
+                            <div class="input-wrapper">
+                                <input type="number" name="projects" class="cyber-input" placeholder="Number of projects completed" required>
+                                <i class="fa-solid fa-diagram-project"></i>
+                            </div>
                         </div>
                     </div>
 
-                    <!-- Input: Aptitude -->
-                    <div class="input-group">
-                        <label class="input-label">
-                            <span>Aptitude Score</span>
-                            <i class="fa-solid fa-brain" style="font-size: 0.7rem;"></i>
-                        </label>
-                        <div class="input-wrapper">
-                            <input type="number" name="aptitude" class="cyber-input" placeholder="e.g. 85" required>
-                            <i class="fa-solid fa-chart-pie"></i>
-                        </div>
+                    <div class="action-buttons">
+                        <button type="submit" class="submit-btn">Run Analysis <i class="fa-solid fa-microchip" style="margin-left: 8px;"></i></button>
+                        <button type="button" class="clear-btn" id="clearBtn"><i class="fa-solid fa-trash"></i> Clear</button>
                     </div>
-
-                    <button type="submit" class="submit-btn">
-                        Run Analysis <i class="fa-solid fa-microchip" style="margin-left: 10px;"></i>
-                    </button>
                 </form>
 
-                <!-- Result Section -->
+                <!-- Prediction Result -->
                 <div class="result-panel" id="resultPanel">
-                    <div class="result-header">
-                        <i class="fa-solid fa-terminal"></i> System Output
-                    </div>
+                    <div class="result-header"><i class="fa-solid fa-terminal"></i> Prediction Output</div>
                     <div class="result-box" id="resultBox">
-                        <!-- Flask Prediction Text Here -->
-                        <span id="predictionText">{{ prediction_text }}</span>
+                        <span id="predictionText"></span>
+                    </div>
+
+                    <!-- AI Suggestion Report -->
+                    <div class="ai-report-container" id="aiContainer" style="display:none;">
+                        <div class="ai-title">
+                            <span><i class="fa-solid fa-wand-magic-sparkles"></i> AI Career Roadmap</span>
+                            
+                            <!-- Generate Button -->
+                            <button class="download-btn" id="generateBtn">
+                                <i class="fa-solid fa-wand-magic"></i> Generate AI Report
+                            </button>
+                            
+                            <!-- Download Button -->
+                            <button class="download-btn" id="downloadBtn" style="display:none;">
+                                <i class="fa-solid fa-file-pdf"></i> Download PDF
+                            </button>
+                        </div>
+                        <div class="report-content" id="aiReportContent"></div>
                     </div>
                 </div>
             </div>
@@ -511,147 +340,233 @@
     </div>
 
     <script>
-        /**
-         * Particle Network Background Animation
-         */
+        // Particle Background (Simplified)
         const canvas = document.getElementById('bg-canvas');
         const ctx = canvas.getContext('2d');
+        let width, height, particles = [];
         
-        let width, height;
-        let particles = [];
-        
-        // Configuration
-        const particleCount = 60;
-        const connectionDistance = 150;
-        const moveSpeed = 0.5;
-
         function resize() {
             width = canvas.width = window.innerWidth;
             height = canvas.height = window.innerHeight;
         }
-
+        
         class Particle {
             constructor() {
-                this.x = Math.random() * width;
-                this.y = Math.random() * height;
-                this.vx = (Math.random() - 0.5) * moveSpeed;
-                this.vy = (Math.random() - 0.5) * moveSpeed;
+                this.x = Math.random() * width; this.y = Math.random() * height;
+                this.vx = (Math.random() - 0.5) * 0.5; this.vy = (Math.random() - 0.5) * 0.5;
                 this.size = Math.random() * 2 + 1;
-                this.color = Math.random() > 0.5 ? 'rgba(0, 255, 242,' : 'rgba(112, 0, 255,'; 
             }
-
             update() {
-                this.x += this.vx;
-                this.y += this.vy;
-
-                // Bounce off edges
+                this.x += this.vx; this.y += this.vy;
                 if (this.x < 0 || this.x > width) this.vx *= -1;
                 if (this.y < 0 || this.y > height) this.vy *= -1;
             }
-
             draw() {
-                ctx.beginPath();
-                ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
-                ctx.fillStyle = this.color + '0.5)';
-                ctx.fill();
+                ctx.fillStyle = document.body.getAttribute('data-theme') === 'light' ? 'rgba(0,123,255,0.5)' : 'rgba(0,255,242,0.5)';
+                ctx.beginPath(); ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2); ctx.fill();
             }
         }
 
         function initParticles() {
             particles = [];
-            for (let i = 0; i < particleCount; i++) {
-                particles.push(new Particle());
-            }
+            for(let i=0; i<50; i++) particles.push(new Particle());
         }
 
-        function animate() {
+        function animateParticles() {
             ctx.clearRect(0, 0, width, height);
-            
-            // Draw connections first
-            for (let i = 0; i < particles.length; i++) {
-                for (let j = i + 1; j < particles.length; j++) {
-                    const dx = particles[i].x - particles[j].x;
-                    const dy = particles[i].y - particles[j].y;
-                    const distance = Math.sqrt(dx * dx + dy * dy);
-
-                    if (distance < connectionDistance) {
-                        ctx.beginPath();
-                        ctx.strokeStyle = `rgba(100, 200, 255, ${1 - distance / connectionDistance})`;
-                        ctx.lineWidth = 0.5;
-                        ctx.moveTo(particles[i].x, particles[i].y);
-                        ctx.lineTo(particles[j].x, particles[j].y);
-                        ctx.stroke();
-                    }
-                }
-            }
-
-            // Update and draw particles
-            particles.forEach(p => {
-                p.update();
-                p.draw();
-            });
-
-            requestAnimationFrame(animate);
+            particles.forEach(p => { p.update(); p.draw(); });
+            requestAnimationFrame(animateParticles);
         }
 
         window.addEventListener('resize', resize);
         resize();
         initParticles();
-        animate();
+        animateParticles();
 
-        /**
-         * Form Interaction & Result Handling
-         */
+        // Theme Toggle
+        const themeToggleBtn = document.getElementById('themeToggle');
+        themeToggleBtn.addEventListener('click', () => {
+            const body = document.body;
+            const isLight = body.getAttribute('data-theme') === 'light';
+            body.setAttribute('data-theme', isLight ? 'dark' : 'light');
+            themeToggleBtn.querySelector('i').className = isLight ? 'fa-solid fa-moon' : 'fa-solid fa-sun';
+        });
+
+        // Logic
         const form = document.getElementById('predictForm');
+        const clearBtn = document.getElementById('clearBtn');
         const loader = document.getElementById('loader');
         const resultPanel = document.getElementById('resultPanel');
         const resultBox = document.getElementById('resultBox');
         const predictionText = document.getElementById('predictionText');
-        const rawPrediction = "{{ prediction_text }}".trim();
+        const aiContainer = document.getElementById('aiContainer');
+        const aiReportContent = document.getElementById('aiReportContent');
+        const generateBtn = document.getElementById('generateBtn');
+        const downloadBtn = document.getElementById('downloadBtn');
 
-        // 1. Handle Submit Animation
-        form.addEventListener('submit', function(e) {
-            // We prevent default to show the animation, then submit programmatically
-            e.preventDefault(); 
-            
-            // Show Loader
-            loader.classList.add('active');
+        let currentData = {}; 
 
-            // Simulate "Neural Processing" delay
-            setTimeout(() => {
-                form.submit(); // Proceed with actual POST request
-            }, 1500);
+        clearBtn.addEventListener('click', () => {
+            form.reset();
+            resultPanel.style.display = 'none';
+            aiContainer.style.display = 'none';
+            aiReportContent.innerHTML = '';
+            // Reset button states
+            generateBtn.style.display = 'flex';
+            downloadBtn.style.display = 'none';
+            currentData = {};
         });
 
-        // 2. Handle Result Display on Page Load
-        document.addEventListener("DOMContentLoaded", () => {
-            // Check if prediction text exists and is not empty (Flask sends it back on POST)
-            if (rawPrediction && rawPrediction !== "None" && rawPrediction !== "") {
+        form.addEventListener('submit', async function(e) {
+            e.preventDefault();
+            loader.classList.add('active');
+
+            // Hide previous results if any
+            aiContainer.style.display = 'none';
+
+            const formData = new FormData(form);
+
+            try {
+                const response = await fetch('/predict', {
+                    method: 'POST',
+                    body: formData
+                });
+
+                if (!response.ok) throw new Error("Server Error");
+
+                const data = await response.json();
                 
-                // Show the panel
+                if (data.error) {
+                    alert(data.error);
+                    loader.classList.remove('active');
+                    return;
+                }
+
+                // Update UI for Prediction
+                loader.classList.remove('active');
                 resultPanel.style.display = 'block';
                 
-                // Clean up text and check content for styling
-                const cleanText = rawPrediction.replace(/['"]+/g, ''); // Remove quotes if backend sends strings
+                // Show AI Container but in "Ready to Generate" state
+                aiContainer.style.display = 'block';
+                aiReportContent.innerHTML = '<p style="text-align:center; color:var(--text-muted)">Click "Generate AI Report" to get your personalized roadmap.</p>';
                 
-                predictionText.innerText = cleanText;
+                // Reset Buttons
+                generateBtn.style.display = 'flex';
+                downloadBtn.style.display = 'none';
+                generateBtn.innerHTML = '<i class="fa-solid fa-wand-magic"></i> Generate AI Report';
+                generateBtn.disabled = false;
 
-                // Apply styles based on result
-                const lowerText = cleanText.toLowerCase();
+                // Set Result
+                resultBox.classList.remove('result-placed', 'result-not-placed');
+                predictionText.textContent = data.prediction + " (" + data.confidence + ")";
                 
-                if (lowerText.includes('placed')) {
+                if (data.prediction.toLowerCase().includes('placed')) {
                     resultBox.classList.add('result-placed');
-                    resultBox.innerHTML = `<i class="fa-solid fa-check-circle" style="margin-right:10px;"></i> ${cleanText}`;
                 } else {
                     resultBox.classList.add('result-not-placed');
-                    resultBox.innerHTML = `<i class="fa-solid fa-circle-xmark" style="margin-right:10px;"></i> ${cleanText}`;
                 }
-            } else {
-                // Hide panel if no result (Initial GET request)
-                resultPanel.style.display = 'none';
+
+                // Store data for next steps
+                currentData = data;
+
+            } catch (error) {
+                console.error(error);
+                loader.classList.remove('active');
+                alert("Backend Connection Error: " + error.message);
             }
         });
 
+        // NEW: Helper function to format Markdown (**bold**) and newlines (\n)
+        function formatMarkdownHTML(text) {
+            if (!text) return '';
+            // 1. Replace \n with <br>
+            let formatted = text.replace(/\n/g, '<br>');
+            // 2. Replace **text** with <b>text</b> (using regex)
+            formatted = formatted.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
+            return formatted;
+        }
+
+        // NEW: Generate Report Logic
+        generateBtn.addEventListener('click', async () => {
+            if (!currentData.prediction) return;
+
+            // UI Loading State
+            generateBtn.innerHTML = '<i class="fa-solid fa-circle-notch fa-spin"></i> Generating...';
+            generateBtn.disabled = true;
+            aiReportContent.innerHTML = '<p style="text-align:center">Consulting AI Career Counselor...</p>';
+
+            try {
+                const response = await fetch('/generate-report', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        prediction: currentData.prediction,
+                        input_data: currentData.input_data
+                    })
+                });
+
+                const resData = await response.json();
+
+                if (resData.error) {
+                    throw new Error(resData.error);
+                }
+
+                // Store RAW text for PDF generation
+                currentData.ai_report = resData.ai_report;
+
+                // Format text for HTML Preview (converts ** to <b> and \n to <br>)
+                const previewHTML = formatMarkdownHTML(resData.ai_report);
+
+                // Update UI with Report
+                aiReportContent.innerHTML = previewHTML;
+                
+                // Switch Buttons
+                generateBtn.style.display = 'none';
+                downloadBtn.style.display = 'flex';
+
+            } catch (error) {
+                console.error("AI Error:", error);
+                aiReportContent.innerHTML = `<span style="color:red">Error: ${error.message}</span>`;
+                generateBtn.innerHTML = 'Retry';
+                generateBtn.disabled = false;
+            }
+        });
+
+        // PDF Download Logic
+        downloadBtn.addEventListener('click', async () => {
+            if (!currentData.ai_report) return;
+
+            const btnOriginalHTML = downloadBtn.innerHTML;
+            downloadBtn.innerHTML = '<i class="fa-solid fa-circle-notch fa-spin"></i> Preparing PDF...';
+            downloadBtn.disabled = true;
+
+            try {
+                const response = await fetch('/download_report', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(currentData)
+                });
+
+                if (!response.ok) throw new Error("PDF Generation Failed");
+
+                const blob = await response.blob();
+                const url = window.URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = "AI_Placement_Report.pdf";
+                document.body.appendChild(a);
+                a.click();
+                a.remove();
+                window.URL.revokeObjectURL(url);
+
+            } catch (error) {
+                console.error("Download error:", error);
+                alert("Error downloading PDF: " + error.message);
+            } finally {
+                downloadBtn.innerHTML = btnOriginalHTML;
+                downloadBtn.disabled = false;
+            }
+        });
     </script>
 </body>
 </html>
