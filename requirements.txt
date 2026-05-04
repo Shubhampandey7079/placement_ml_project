@@ -1,6 +1,6 @@
 Flask
-gunicorn
 pandas
-python-dotenv
+scikit-learn
 reportlab
 groq
+python-dotenv
