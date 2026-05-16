@@ -359,4 +359,8 @@ def download_report():
 
 
 if __name__ == "__main__":
+<<<<<<< HEAD
     app.run(debug=True, port=5000)
+=======
+    app.run(debug=True, port=5000)
+>>>>>>> 05ecf9ffdac7da76996beeecaffabe7f192da8c9
