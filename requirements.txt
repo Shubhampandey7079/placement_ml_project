@@ -5,3 +5,4 @@ reportlab
 groq
 python-dotenv
 gunicorn
+flask-cors

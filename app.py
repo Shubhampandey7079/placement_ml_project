@@ -1,4 +1,5 @@
 from flask import Flask, render_template, request, jsonify, send_file
+from flask_cors import CORS
 import pickle
 import pandas as pd
 import os
@@ -17,6 +18,7 @@ from groq import Groq
 # INIT & CONFIG
 # ==========================================
 app = Flask(__name__)
+CORS(app)
 load_dotenv()
 
 # ==========================================
@@ -312,29 +314,83 @@ def home():
     return render_template("index.html")
 
 
+@app.route('/api/health', methods=['GET'])
+def health():
+    return jsonify({"status": "healthy", "model_loaded": model is not None})
+
+
 @app.route('/predict', methods=['POST'])
 def predict():
-    input_data = {}
-    for col in FEATURE_COLUMNS:
-        val = request.form.get(col)
-        input_data[col] = float(val)
+    try:
+        input_data = {}
 
-    # Use Real Model or Dummy Logic
-    if model and scaler:
-        df = pd.DataFrame([input_data])
-        scaled = scaler.transform(df)
-        pred = model.predict(scaled)[0]
-        prob = model.predict_proba(scaled)[0][1]
-    
-    result = "Placed" if pred == 1 else "Not Placed"
+        data_source = request.get_json(silent=True)
 
-    return jsonify({
-        "prediction": result,
-        "confidence": f"{prob*100:.2f}%",
-        "input_data": input_data
-    })
+        if not data_source:
+            data_source = request.form
 
+        print("REQUEST DATA:", data_source)
 
+        for col in FEATURE_COLUMNS:
+            if col not in data_source:
+                return jsonify({
+                    "error": f"Missing field: {col}"
+                }), 400
+
+            input_data[col] = float(data_source[col])
+
+        print("INPUT DATA:", input_data)
+
+        pred = 0
+        prob = 0.5
+
+        if model is not None and scaler is not None:
+            try:
+                df = pd.DataFrame([input_data])
+
+                print("DATAFRAME:")
+                print(df)
+
+                scaled = scaler.transform(df)
+
+                pred = int(model.predict(scaled)[0])
+
+                if hasattr(model, "predict_proba"):
+                    prob = float(model.predict_proba(scaled)[0][1])
+
+            except Exception as model_error:
+                print("MODEL ERROR:", str(model_error))
+
+                return jsonify({
+                    "error": str(model_error)
+                }), 500
+
+        else:
+            cgpa = input_data["cgpa"]
+            coding = input_data["coding_skills"]
+            aptitude = input_data["aptitude_score"]
+
+            if cgpa > 7.5 and coding > 6 and aptitude > 70:
+                pred = 1
+                prob = 0.85
+            else:
+                pred = 0
+                prob = 0.35
+
+        result = "Placed" if pred == 1 else "Not Placed"
+
+        return jsonify({
+            "prediction": result,
+            "confidence": f"{prob * 100:.2f}%",
+            "input_data": input_data
+        })
+
+    except Exception as e:
+        print("PREDICT ERROR:", str(e))
+
+        return jsonify({
+            "error": str(e)
+        }), 500
 @app.route('/generate-report', methods=['POST'])
 def generate_report():
     data = request.json
@@ -357,10 +413,14 @@ def download_report():
         mimetype="application/pdf"
     )
 
+@app.errorhandler(Exception)
+def handle_exception(e):
+    print("GLOBAL ERROR:", str(e))
+
+    return jsonify({
+        "error": str(e)
+    }), 500
 
 if __name__ == "__main__":
-<<<<<<< HEAD
     app.run(debug=True, port=5000)
-=======
-    app.run(debug=True, port=5000)
->>>>>>> 05ecf9ffdac7da76996beeecaffabe7f192da8c9
+
